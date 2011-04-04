@@ -222,7 +222,11 @@ namespace Migrator.Providers
 		public virtual void RemoveTable(string name)
 		{
 			if (TableExists(name))
-				ExecuteNonQuery(String.Format("DROP TABLE {0}", name));
+			{
+                name = _dialect.TableNameNeedsQuote ? _dialect.Quote(name) : name;
+                ExecuteNonQuery(String.Format("DROP TABLE {0}", name));
+			}
+				
 		}
 
 		public virtual void RenameTable(string oldName, string newName)
@@ -252,6 +256,7 @@ namespace Migrator.Providers
 		{
 			if (ColumnExists(table, column))
 			{
+                table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
 				ExecuteNonQuery(String.Format("ALTER TABLE {0} DROP COLUMN {1} ", table, column));
 			}
 		}
@@ -422,6 +427,7 @@ namespace Migrator.Providers
 				Logger.Warn("Primary key {0} already exists", name);
 				return;
 			}
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
 			ExecuteNonQuery(
 				String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} PRIMARY KEY ({2}) ", table, name,
 							  String.Join(",", columns)));
@@ -434,6 +440,7 @@ namespace Migrator.Providers
 				Logger.Warn("Constraint {0} already exists", name);
 				return;
 			}
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
 			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} UNIQUE({2}) ", table, name, string.Join(", ", columns)));
 		}
 
@@ -444,6 +451,7 @@ namespace Migrator.Providers
 				Logger.Warn("Constraint {0} already exists", name);
 				return;
 			}
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
 			ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD CONSTRAINT {1} CHECK ({2}) ", table, name, checkSql));
 		}
 
@@ -653,6 +661,7 @@ namespace Migrator.Providers
 
 	    public virtual int Insert(string table, string[] columns, string[] values)
 		{
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
 			return ExecuteNonQuery(String.Format("INSERT INTO {0} ({1}) VALUES ({2})", table, String.Join(", ", columns), String.Join(", ", QuoteValues(values))));
 		}
 
@@ -675,6 +684,7 @@ namespace Migrator.Providers
 
 		public virtual int Delete(string table, string wherecolumn, string wherevalue)
 		{
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
 			return ExecuteNonQuery(String.Format("DELETE FROM {0} WHERE {1} = {2}", table, wherecolumn, QuoteValues(wherevalue)));
 		}
 
@@ -747,7 +757,11 @@ namespace Migrator.Providers
 				{
 					_appliedMigrations = new List<long>();
 					CreateSchemaInfoTable();
-					using(IDataReader reader = Select("version","SchemaInfo")){
+                    // Select("version","SchemaInfo")){
+				    string table = "SchemaInfo";
+                    table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
+                    using (IDataReader reader = ExecuteQuery(String.Format("SELECT version FROM {0} order by version", table)))
+                    { 
 						while(reader.Read()){
                             _appliedMigrations.Add(Convert.ToInt64(reader.GetValue(0)));
 						}

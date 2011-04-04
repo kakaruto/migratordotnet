@@ -24,7 +24,9 @@ namespace Migrator.Providers.Oracle
                 Logger.Warn("Constraint {0} already exists", name);
                 return;
             }
-
+            primaryTable = _dialect.TableNameNeedsQuote ? _dialect.Quote(primaryTable) : primaryTable;
+            refTable = _dialect.TableNameNeedsQuote ? _dialect.Quote(refTable) : refTable;
+            name = _dialect.ConstraintNameNeedsQuote ? _dialect.Quote(name) : name;
             ExecuteNonQuery(
                 String.Format(
                     "ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY ({2}) REFERENCES {3} ({4})",
@@ -34,6 +36,7 @@ namespace Migrator.Providers.Oracle
 
         public override void AddColumn(string table, string sqlColumn)
         {
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
             ExecuteNonQuery(String.Format("ALTER TABLE {0} ADD {1}", table, sqlColumn));
         }
 

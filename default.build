@@ -110,7 +110,7 @@
 				<include name="${dir.bin}/Migrator.dll" />
 			</references>
 		</csc>
-		<csc target="library" output="${dir.bin}/Migrator.MSBuild.dll" define="${defines}" debug="${debug}" if="${framework::get-target-framework() == 'net-2.0'}" keyfile="${dir.keyfile}">
+		<csc target="library" output="${dir.bin}/Migrator.MSBuild.dll" define="${defines}" debug="${debug}"  keyfile="${dir.keyfile}">
 			<sources>
 				<include name="${dir.config}/AssemblyInfo.cs" />
 				<include name="${dir.msbuild}/**/*.cs" />

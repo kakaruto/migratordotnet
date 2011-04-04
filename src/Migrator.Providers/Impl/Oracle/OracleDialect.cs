@@ -5,11 +5,24 @@ using Migrator.Framework;
 
 namespace Migrator.Providers.Oracle
 {
-	public class OracleDialect : Dialect
-	{
-	    public OracleDialect()
-	    {
-	        RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
+    public class OracleDialect : Dialect
+    {
+        public override bool TableNameNeedsQuote
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override bool ConstraintNameNeedsQuote
+        {
+            get { return true; }
+        }
+
+        public OracleDialect()
+        {
+            RegisterColumnType(DbType.AnsiStringFixedLength, "CHAR(255)");
             RegisterColumnType(DbType.AnsiStringFixedLength, 2000, "CHAR($l)");
             RegisterColumnType(DbType.AnsiString, "VARCHAR2(255)");
             RegisterColumnType(DbType.AnsiString, 2000, "VARCHAR2($l)");
@@ -38,7 +51,7 @@ namespace Migrator.Providers.Oracle
             RegisterColumnType(DbType.String, 2000, "NVARCHAR2($l)");
             RegisterColumnType(DbType.String, 1073741823, "NCLOB");
             RegisterColumnType(DbType.Time, "DATE");
-	        RegisterProperty(ColumnProperty.Null, String.Empty);
+            RegisterProperty(ColumnProperty.Null, String.Empty);
         }
 
         public override Type TransformationProvider { get { return typeof(OracleTransformationProvider); } }
