@@ -16,6 +16,12 @@ namespace Migrator.Providers.Oracle
             _connection.Open();
         }
 
+        public override void ChangeColumn(string table, string sqlColumn)
+        {
+            table = _dialect.TableNameNeedsQuote ? _dialect.Quote(table) : table;
+            ExecuteNonQuery(String.Format("ALTER TABLE {0} MODIFY {1}", table, sqlColumn));
+        }
+
         public override void AddForeignKey(string name, string primaryTable, string[] primaryColumns, string refTable,
                                           string[] refColumns, Migrator.Framework.ForeignKeyConstraint constraint)
         {
